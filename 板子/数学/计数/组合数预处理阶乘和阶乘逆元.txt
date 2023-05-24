@@ -1,0 +1,16 @@
+void Init() {
+	fact[0] = infact[0] = 1;
+	for (int i = 1; i <= N - 1; i++) {
+		fact[i] = (LL)fact[i - 1] * i % MOD;
+		infact[i] = (LL)infact[i - 1] * qpow(i, MOD - 2, MOD) % MOD;
+	}
+	//cout<<(LL)fact[a]*infact[b]%mod*infact[a-b]%mod<<endl;
+}
+
+//更快的
+void Init() {
+	fact[0] = infact[0] = 1;
+	for (int i = 1; i <= N - 1; i++) fact[i] = (LL)fact[i - 1] * i % MOD;
+	infact[N - 1] = qpow(fact[N - 1], MOD - 2, MOD);
+	rrep (i, N - 2, 1) infact[i] = (LL)infact[i + 1] * (i + 1) % MOD;
+}

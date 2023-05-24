@@ -1,0 +1,65 @@
+#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e6 + 50, MOD = 1e9 + 7;
+const double eps = 1e-7, pi = acos(-1);
+
+int ne[N], f[N][26];
+
+char s[N]; 
+
+void work() {
+	int q;
+	scanf("%s%d", s + 1, &q);
+	int m = strlen(s + 1);
+	ne[0] = ne[1] = 0;
+	f[0][s[1] - 'a'] = 1;
+	rep (i, 2, m) {
+		rep (j, 0, 25) {
+			if (s[i] - 'a' == j) {
+				f[i - 1][j] = i;
+				ne[i] = f[ne[i - 1]][j];
+			}
+			else f[i - 1][j] = f[ne[i - 1]][j];
+		}
+	}
+	while (q--) {
+		scanf("%s", s + 1 + m);
+		int len = strlen(s + 1 + m);
+		rep (i, m + 1, m + len) {
+			rep (j, 0, 25) {
+				if (s[i] - 'a' == j) {
+					f[i - 1][j] = i;
+					ne[i] = f[ne[i - 1]][j];
+				}
+				else f[i - 1][j] = f[ne[i - 1]][j];
+			}
+			printf("%d ", ne[i]);
+		}
+		puts("");
+	}
+}
+
+signed main() {
+	int test = 1;
+//	cin >> test;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

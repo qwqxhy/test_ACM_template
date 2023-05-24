@@ -1,0 +1,218 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e5 + 10, M = 2 * N;
+const double eps = 1e-7, PI = 3.1415926;
+
+int n, m, root, MOD;
+int w[N];
+
+int head[N], idx;
+
+struct EGDE {
+	int to, next;
+} eg[M];
+
+void add(int x, int y) {
+	eg[idx].to = y;
+	eg[idx].next = head[x];
+	head[x] = idx++;
+}
+
+//Heavy-light Decomposition STARTS FORM HERE
+int siz[N];//number of son
+int son[N];//heavy son of the node
+int faz[N];//father of the node
+int dep[N];//depth of the node
+int top[N];//top of the heavy link
+int tid[N];//ID -> DFSID 就是dfn[N]
+int rnk[N];//DFSID -> ID
+int cnt;//时间戳
+
+void dfs_1(int cur, int fa, int depth) {
+	siz[cur] = 1;
+	faz[cur] = fa;
+	dep[cur] = depth;
+	for (int i = head[cur]; ~i; i = eg[i].next) {
+		int to = eg[i].to;
+		if (to == fa) continue;
+		dfs_1(to, cur, depth + 1);
+		siz[cur] += siz[to];
+		if (son[cur] == -1 || siz[son[cur]] < siz[to]) son[cur] = to;
+	}
+}
+
+void dfs_2(int cur, int tp) {
+	top[cur] = tp;
+	tid[cur] = ++cnt;
+	rnk[cnt] = cur;
+
+	if (son[cur] == -1) return;
+	dfs_2(son[cur], tp);
+
+	for (int i = head[cur]; ~i; i = eg[i].next) {
+		int to = eg[i].to;
+		if (to != son[cur] && to != faz[cur]) dfs_2(to, to);
+	}
+}
+
+struct NODE {
+	int l, r;
+	int sum;
+	int lazy;
+} tr[N * 4];
+
+void pushup(int u) {
+	tr[u].sum = ((LL)tr[u << 1].sum + tr[u << 1 | 1].sum) % MOD;
+}
+
+void pushdown(int u) {
+	int x = u << 1, y = u << 1 | 1;
+	int lazy = tr[u].lazy;
+	tr[x].sum = ((LL)tr[x].sum + lazy * (tr[x].r - tr[x].l + 1)) % MOD;
+	tr[x].lazy = ((LL)tr[x].lazy + lazy) % MOD;
+	tr[y].sum = ((LL)tr[y].sum + lazy * (tr[y].r - tr[y].l + 1)) % MOD;
+	tr[y].lazy = ((LL)tr[y].lazy + lazy) % MOD;
+	tr[u].lazy = 0;
+}
+
+void build(int u, int l, int r) {
+	if (l == r) {
+		tr[u] = {l, l, w[rnk[l]], 0};
+		return;
+	}
+	tr[u].lazy = 0;
+	tr[u].l = l, tr[u].r = r;
+	int mid = l + r >> 1;
+	build(u << 1, l, mid);
+	build(u << 1 | 1, mid + 1, r);
+	pushup(u);
+}
+
+int query(int u, int l, int r) {
+	if (l <= tr[u].l && r >= tr[u].r) return tr[u].sum;
+	else {
+		pushdown(u);
+		int mid = tr[u].l + tr[u].r >> 1;
+		if (r <= mid) return query(u << 1, l, r);
+		else if (l > mid) return query(u << 1 | 1, l, r);
+		else {
+			int suml = query(u << 1, l, r), sumr = query(u << 1 | 1, l, r);
+			return (LL)(suml + sumr) % MOD;
+		}
+	}
+}
+
+void modify(int u, int l, int r, int d) {
+	if (l <= tr[u].l && r >= tr[u].r) {
+		tr[u].sum = ((LL)tr[u].sum + (tr[u].r - tr[u].l + 1) * d) % MOD;
+		tr[u].lazy = (LL)(tr[u].lazy + d) % MOD;
+	} else {
+		pushdown(u);
+		int mid = tr[u].l + tr[u].r >> 1;
+		if (r <= mid) modify(u << 1, l, r, d);
+		else if (l > mid) modify(u << 1 | 1, l, r, d);
+		else {
+			modify(u << 1, l, r, d);
+			modify(u << 1 | 1, l, r, d);
+		}
+		pushup(u);
+	}
+}
+
+int query_path(int x, int y) {
+	int res = 0;
+	int fx = top[x], fy = top[y];
+	while (fx != fy) {
+		if (dep[fx] >= dep[fy]) {
+			res = ((LL)res + query(1, tid[fx], tid[x])) % MOD;
+			x = faz[fx];
+		} else {
+			res = ((LL)res + query(1, tid[fy], tid[y])) % MOD;
+			y = faz[fy];
+		}
+		fx = top[x], fy = top[y];
+	}
+
+	if (x != y) {
+		if (tid[x] < tid[y]) res = ((LL)res + query(1, tid[x], tid[y])) % MOD;
+		else res = ((LL)res + query(1, tid[y], tid[x])) % MOD;
+	} else res = ((LL)res + query(1, tid[x], tid[y])) % MOD;
+
+	return res;
+}
+
+void modify_path(int x, int y, int z) {
+	int fx = top[x], fy = top[y];
+	while (fx != fy) {
+		if (dep[fx] >= dep[fy]) {
+			modify(1, tid[fx], tid[x], z);
+			x = faz[fx];
+		} else {
+			modify(1, tid[fy], tid[y], z);
+			y = faz[fy];
+		}
+		fx = top[x], fy = top[y];
+	}
+
+	if (x != y) {
+		if (tid[x] < tid[y]) modify(1, tid[x], tid[y], z);
+		else modify(1, tid[y], tid[x], z);
+	} else modify(1, tid[x], tid[y], z);
+}
+
+void work() {
+	memset(head, -1, sizeof head);
+	memset(son, -1, sizeof son);
+	cin >> n >> m >> root >> MOD;
+	rep(i, 1, n) cin >> w[i];
+	rep(i, 1, n - 1) {
+		int x, y;
+		cin >> x >> y;
+		add(x, y), add(y, x);
+	}
+	dfs_1(root, -1, 0);
+	dfs_2(root, root);
+	build(1, 1, cnt);
+	while (m--) {
+		int op, x, y, z;
+		cin >> op;
+		if (op == 1) {
+			cin >> x >> y >> z;
+			modify_path(x, y, z);
+		} else if (op == 2) {
+			cin >> x >> y;
+			cout << query_path(x, y) << endl;
+		} else if (op == 3) {
+			cin >> x >> z;
+			int tdx = tid[x], tdy = tid[x] + siz[x] - 1;
+			modify(1, tdx, tdy, z);
+		} else {
+			cin >> x;
+			int tdx = tid[x], tdy = tid[x] + siz[x] - 1;
+			cout << query(1, tdx, tdy) << endl;
+		}
+	}
+}
+
+signed main() {
+	int test = 1;
+	//	cin >> test;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

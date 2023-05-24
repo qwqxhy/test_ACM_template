@@ -1,0 +1,44 @@
+int dist[N];
+bool st[N];
+int cnt[N];
+
+bool spfa()
+{
+    //memset(dist , 0 , sizeof dist);
+    memset(st , 0 , sizeof st);      
+    memset(cnt , 0 , sizeof cnt);
+
+    queue<int> q; 
+
+    for(int i = 1 ; i <= n ; i++) // i>=0/1
+    {
+        q.push(i); //虚拟原点
+        st[i] = true;
+    }
+
+    while(q.size())
+    {
+        int cur = q.front();
+        q.pop();
+
+        st[cur] = false;
+
+        for(int i = head[cur] ; ~i ; i = eg[i].next)
+        {
+            int to = eg[i].to;
+            if(dist[to] > dist[cur] + eg[i].w)
+            {
+                dist[to] = dist[cur] + eg[i].w;
+                cnt[to] = cnt[cur] + 1;
+                if(cnt[to] >= n) return true;
+                if(!st[to])
+                {
+                    st[to] = true;
+                    q.push(to);
+                }
+            }
+        }
+    }
+    return false;
+}
+

@@ -1,0 +1,72 @@
+#include<iostream>
+#include<cstring>
+#include<vector>
+#include<random>
+#include<chrono>
+#include<set>
+using namespace std;
+using LL = long long;
+using ULL = unsigned long long;
+const int maxn = 2e5 + 5;
+vector<int> g[maxn];
+int f[maxn];
+ULL hsh[maxn];
+
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+uniform_int_distribution<ULL> dist(0, ULLONG_MAX);
+const ULL s = dist(rnd);
+
+ULL xorshift(ULL x){
+    x ^= x << 13;
+    x ^= x >> 7;
+    x ^= x << 17;
+    return x;
+}
+
+void dfs(int u, int fa){
+    ULL res = s;
+    ULL sum = 0;
+    for(auto j : g[u]){
+        if (j == fa) continue;
+        dfs(j, u);
+        res += xorshift(hsh[j]);
+        sum ^= xorshift(hsh[j]);
+    }
+
+    hsh[u] = res;
+    if (sum == 0) f[u] = 1;
+    else{
+        for(auto j : g[u]){
+            if (j == fa) continue;
+            if (xorshift(hsh[j]) == sum && f[j]){
+                f[u] = 1;
+                break;
+            }
+        }
+    }
+}
+
+int main(){
+
+    cin.tie(0);
+    cout.tie(0);
+    ios::sync_with_stdio(0);
+
+    int T;
+    cin >> T;
+    while(T--){
+        int n;
+        cin >> n;
+        for(int i = 1; i <= n; i++) g[i].clear(), f[i] = 0;
+        for(int i = 0; i < n - 1; i++){
+            int a, b;
+            cin >> a >> b;
+            g[a].push_back(b);
+            g[b].push_back(a);
+        }
+        
+        dfs(1, -1);
+        cout << (f[1] ? "YES" : "NO") << '\n';
+    }
+
+}

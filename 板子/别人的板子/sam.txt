@@ -1,0 +1,234 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int maxn=1e5+10;//字符串长度 
+const int maxc=26;
+char s[maxn];
+struct Suffix_Automaton {//打*的不一定用到 
+        int next[maxn<<1][maxc];  //状态转移(尾部加一个字符的下一个状态)
+	int len[maxn<<1]; //最长子串的长度(该节点子串数量=len[x]-len[link[x]])
+	int link[maxn<<1];   //后缀链接(最短串前部减少一个字符所到达的状态)
+//	int cnt[maxn<<1];   //被后缀连接的数(*） 
+	int id; //结点编号
+	int last; //最后结点
+	int endpos[maxn<<1]; // endpos数（一类子串的数量）
+	int a[maxn];		
+        int b[maxn<<1];
+//    int sum[maxn<<1];//该节点后面所形成的子串的总数
+//    int dp[maxn<<1];
+//    int ans[maxn<<1];
+//    ll d[maxn<<1];   //d[i]表示从状态i出发，不同的子串的数目,即不同的路径数
+	void init() {	//初始化
+		for(int i=1; i<=id; i++){ //常规初始化 
+			link[i] = len[i] = 0;
+			memset(next[i],0,sizeof(next[i]));
+			endpos[i]=0;
+			a[i]=0;
+			b[i]=0;
+		}
+//		for(int i=1;i<=id;i++) {//非常规初始化 
+//			d[i]=0;
+//		}
+		last = id = 1; //1表示root起始点 空集
+	}
+//SAM建图
+	void add(int c) {     //插入字符，为字符ascll码值
+		int x = ++id; //创建一个新结点x;
+		len[x] = len[last] + 1; //  长度等于最后一个结点+1
+		endpos[x] = 1;  //接受结点子串除后缀连接还需加一
+		int p;  //第一个有C转移的结点;
+		for (p = last; p && !next[p][c]; p = link[p])
+			next[p][c] = x;//沿着后缀连接 将所有没有字符c转移的节点直接指向新结点
+		if (!p){   //全部都没有c的转移 直接将新结点后缀连接到起点
+			link[x] = 1;
+		//	cnt[1]++;  
+	    }
+		else {
+			int q = next[p][c];    //p通过c转移到的结点
+			if (len[p] + 1 == len[q]){//pq是连续的
+				link[x] = q;
+			//	cnt[q]++; //将新结点后缀连接指向q即可,q结点的被后缀连接数+1
+			} 
+			else {
+				int nq = ++id;   //不连续 需要复制一份q结点
+				len[nq] = len[p] + 1;   //令nq与p连续
+				link[nq] = link[q];   //因后面link[q]改变此处不加cnt
+				memcpy(next[nq], next[q], sizeof(next[q]));  //复制q的信息给nq
+				for (; p&&next[p][c] == q; p = link[p])
+					next[p][c] = nq;    //沿着后缀连接 将所有通过c转移为q的改为nq
+				link[q] = link[x] = nq; //将x和q后缀连接改为nq
+				//cnt[nq] += 2; //  nq增加两个后缀连接	
+			}
+		}
+		last = x;  //更新最后处理的结点	
+	} 
+	void getTP(int &Len){//对sam的节点按照len，从小到大排序重新标号，即给定节点的拓扑序
+	    for(int i=1;i<=id;i++) a[len[i]]++;
+		for(int i=1;i<=Len;i++) a[i]+=a[i-1];
+		for(int i=1;i<=id;i++) b[a[len[i]]--]=i;
+	}
+	void getendpos(){//求每类子串的数量 ,即endpos集合的大小 
+		for(int i=id;i>=1;i--){ //按拓扑序遍历 
+			int e=b[i];
+			endpos[link[e]]+=endpos[e];
+		} 
+	}
+	
+	
+	/*
+	ll getSubNum() {	//求不相同子串数量
+		ll ans = 0;
+		for (int i = 2; i <= id; i++)
+			ans += len[i]-len[link[i]];	//一状态子串数量等于len[i]-len[link[i]]
+		return ans;
+	} 
+	*/
+	
+	/*
+	void get_len_max(int Len){//求长度为i的出现次数最多的子串的出现次数 
+		for(int i=1;i<=id;i++) dp[len[i]]=max(dp[len[i]],endpos[i]);
+		for(int i=Len-1;i>=1;i--) dp[i]=max(dp[i],dp[i+1]);
+		for(int i=1;i<=Len;i++) printf("%d\n",dp[i]);
+	}
+	*/
+	
+	/*
+	void getsum(){
+		for(int i=id;i>=1;i--){
+			int &e=b[i];
+			sum[e]=1;
+			for(int j=0;j<26;j++){
+				sum[e]+=sum[next[e][j]];
+			}
+		}
+	}
+	void getmink(int k){ //求字典序第k小的子串 
+		int now=1,p;
+		string s="";
+		while(k){
+			for(int i=0;i<26;i++){
+				if(next[now][i]&&k){
+					p=next[now][i];
+					if(sum[p]<k) k-=sum[p];
+					else{
+						k--;
+						now=p;
+						s+=(char)(i+'a');
+						break;
+					}
+				}
+			}
+		}
+		cout<<s<<endl;
+	}
+	*/
+	
+	/*
+	void LCS1(char s[],int Len){//求两个串的最长公共子串
+	    int ans=0,cnt=0;
+	    int now=1;
+	    char base='a';
+	    for(int i=0;i<Len;i++){
+	      	int c=s[i]-base;
+	      	if(next[now][c]){
+	      	    cnt++;
+	      	    now=next[now][c];
+			}
+			else{
+			  	while(now&&!next[now][c]) now=link[now];
+			  	if(!now) cnt=0,now=1;
+			  	else cnt=len[now]+1,now=next[now][c];
+			}
+			ans=max(ans,cnt);
+		}
+		printf("%d\n",ans);
+	} 
+	*/
+	
+	/*
+	void init_ans(){
+		for(int i=1;i<=id;i++) ans[i]=len[i];
+	}
+	void LCS2(char s[],int Len){     //求多个串的最长公共子串 
+		for(int i=1;i<=id;i++) dp[i]=0;
+		int cnt=0;
+	    int now=1;
+	    char base='a';
+	    for(int i=0;i<Len;i++){
+	      	int c=s[i]-base;
+	      	if(next[now][c]){
+	      	    cnt++;
+	      	    now=next[now][c];
+			}
+			else{
+			  	while(now&&!next[now][c]) now=link[now];
+			  	if(!now) cnt=0,now=1;
+			  	else cnt=len[now]+1,now=next[now][c];
+			}
+			dp[now]=max(dp[now],cnt);
+		}
+		for(int i=id;i>=1;i--){
+			int e=b[i];
+			dp[link[e]]=max(dp[link[e]],min(dp[e],len[link[e]]));
+		}
+		for(int i=1;i<=id;i++) ans[i]=min(ans[i],dp[i]);
+	}
+	void get_LCS2_ans(){
+		int cnt=0;
+		for(int i=1;i<=id;i++) cnt=max(cnt,ans[i]);
+		printf("%d\n",cnt);
+	}
+	*/
+	
+	/*
+	void solve1(){ //求出现次数为k的子串种数 
+		ll ans=0;
+		for(int i=1;i<=id;i++){
+			if(endpos[i]==K){
+				ans+=len[i]-len[link[i]];
+			}
+		}
+		printf("%lld\n",ans);
+	}
+	*/
+	 
+	/*
+	void solve1(){//求出现次数A<=K<=B的子串种数 
+		for(int i=id;i>1;i--){
+			int v=b[i];
+			if(endpos[v]>=A&&endpos[v]<=B) d[v]++;
+			for(int j=0;j<26;j++){
+				if(next[v][j]) d[v]+=d[next[v][j]];
+			}
+		}
+		ll ans=0;
+		for(int i=0;i<26;i++){
+			if(next[1][i]) ans+=d[next[1][i]];
+		}
+		printf("%lld\n",ans);
+	}
+	*/
+	
+	/*
+	void solve2(){//求出现次数>=k的子串的最大长度 
+		int ans=0;
+		for(int i=1;i<=id;i++){
+			if(endpos[i]>=K){
+				ans=max(ans,len[i]);
+			}
+		}
+		printf("%d\n",ans);
+	}
+	*/
+	
+} sam;
+ 
+signed main(){
+    scanf("%s",s);
+    int len=strlen(s);
+    sam.init();
+    for(int i=0;i<len;i++) sam.add(s[i]-'a');
+    sam.getTP(len);
+    sam.getendpos(); 
+    return 0;
+}

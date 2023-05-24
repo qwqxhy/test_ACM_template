@@ -1,0 +1,40 @@
+std文件：
+freopen("in.in", "r", stdin);
+freopen("std.txt", "w", stdout);
+
+暴力（参考）文件：
+freopen("in.in", "r", stdin);      //读入数据生成器造出来的数据
+freopen("baoli.txt", "w", stdout); //输出答案
+
+数据生成文件：
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+	srand(time(0));
+	freopen("in.in", "w", stdout); //生成 使两份基本代码 将要读入的数据
+	int a = rand() % 30 + 2, b = rand() % 10 + 10;
+	printf("%d %d\n", a, b);
+	while (b--) {
+		int u = rand() % a + 1;
+		int v = rand() % a + 1;
+		while (u == v) v = rand() % a + 1;
+		printf("%d %d\n", u, v);
+	}
+}
+
+对拍文件：
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	while (1) //一直循环，直到找到不一样的数据
+	{
+		system("data.exe");
+		system("baoli.exe");
+		system("std.exe");
+		if (system("fc std.txt baoli.txt")) //当 fc 返回1时，说明这时数据不一样
+			break;                          //不一样就跳出循环
+	}
+	return 0;
+}

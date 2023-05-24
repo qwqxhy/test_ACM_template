@@ -1,0 +1,63 @@
+struct NODE {
+	int l, r;
+	int sum;
+	int lazy;
+} tr[N * 4];
+
+void pushup(int u) {
+	tr[u].sum = tr[u << 1].sum + tr[u << 1 | 1].sum;
+}
+
+void pushdown(int u) {
+	int x = u << 1, y = u << 1 | 1;
+	int lazy = tr[u].lazy;
+	tr[x].sum += lazy * (tr[x].r - tr[x].l + 1);
+	tr[x].lazy += lazy;
+	tr[y].sum += lazy * (tr[y].r - tr[y].l + 1);
+	tr[y].lazy += lazy;
+	tr[u].lazy = 0;
+}
+
+void build(int u, int l, int r) {
+	if (l == r) {
+		tr[u] = {l, l, a[l], 0};
+		return;
+	}
+	tr[u].lazy = 0;
+	tr[u].l = l, tr[u].r = r;
+	int mid = l + r >> 1;
+	build(u << 1, l, mid);
+	build(u << 1 | 1, mid + 1, r);
+	pushup(u);
+}
+
+int query(int u, int l, int r) {
+	if (l <= tr[u].l && r >= tr[u].r) return tr[u].sum;
+	else {
+		pushdown(u);
+		int mid = tr[u].l + tr[u].r >> 1;
+		if (r <= mid) return query(u << 1, l, r);
+		else if (l > mid) return query(u << 1 | 1, l, r);
+		else {
+			int suml = query(u << 1, l, r), sumr = query(u << 1 | 1, l, r);
+			return suml + sumr;
+		}
+	}
+}
+
+void modify(int u, int l, int r, int d) {
+	if (l <= tr[u].l && r >= tr[u].r) {
+		tr[u].sum += (tr[u].r - tr[u].l + 1) * d;
+		tr[u].lazy += d;
+	} else {
+		pushdown(u);
+		int mid = tr[u].l + tr[u].r >> 1;
+		if (r <= mid) modify(u << 1, l, r, d);
+		else if (l > mid) modify(u << 1 | 1, l, r, d);
+		else {
+			modify(u << 1, l, r, d);
+			modify(u << 1 | 1, l, r, d);
+		}
+		pushup(u);
+	}
+}

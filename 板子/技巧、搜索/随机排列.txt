@@ -1,0 +1,2 @@
+srand(time(NULL));
+random_shuffle(eg.begin() + 1, eg.begin() + m + 1);

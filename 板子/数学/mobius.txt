@@ -1,0 +1,28 @@
+int primes[N], cnt;
+bool st[N];
+int mobius[N], sum[N];
+
+void init(int n) {
+    mobius[1] = 1;  // 莫比乌斯函数特判
+    for (int i = 2; i <= n; i ++ ) {
+        if (!st[i]) {
+            primes[cnt ++ ] = i;
+            mobius[i] = -1;
+        }
+        for (int j = 0; primes[j] <= n / i; j ++ ) {
+            int t = primes[j] * i;
+            st[t] = true;
+            if (i % primes[j] == 0) {
+                mobius[t] = 0;
+                break;
+            }
+            // 这里还是有点绕的
+            // 根据线性筛的知识，pj 一定是 t = pj * i 的最小质因子
+            // 这里由于没有 break，说明 pj 小于 i 的所有质因子，也就不是i的质因子
+            // 说明 t = pj * i，t 多了一个新的不同质因子，就乘上一个-1就行了
+            mobius[t] = mobius[i] * -1;  
+        }
+    }
+    for (int i = 1; i <= n; i ++ ) sum[i] = sum[i - 1] + mobius[i];  // 前缀和
+}
+

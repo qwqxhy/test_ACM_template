@@ -1,0 +1,151 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<int, PII> PPI;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e4 + 10, MOD = 1e9 + 7;
+const double eps = 1e-7, pi = acos(-1);
+
+int n, m;
+int idx, head[N];
+
+int qus[N], res[N];
+
+int root;
+int sz[N], mxs[N], mn;
+
+int vis[N], dis[N], frm[N], son[N], udx;
+
+struct NODE {
+	int to, nxt, w;
+} eg[N << 1];
+
+void add_edge(int u, int v, int w) {
+	eg[idx].to = v;
+	eg[idx].w = w;
+	eg[idx].nxt = head[u];
+	head[u] = idx++;
+}
+
+void get_root(int u, int fa, int tot) {
+	sz[u] = 1;
+	mxs[u] = 0;
+	for (int i = head[u]; ~i; i = eg[i].nxt) {
+		int v = eg[i].to;
+		if (vis[v] || v == fa) continue;
+		get_root(v, u, tot);
+		sz[u] += sz[v];
+		mxs[u] = max(mxs[u], sz[v]);
+	}
+	mxs[u] = max(mxs[u], tot - sz[u]);
+	if (mxs[u] < mn) root = u, mn = mxs[u];
+}
+
+void get_dis(int u, int fa, int dist, int from) {
+	son[++udx] = u;
+	dis[u] = dist;
+	frm[u] = from;
+	
+	for (int i = head[u]; ~i; i = eg[i].nxt) {
+		int v = eg[i].to;
+		if (vis[v] || v == fa) continue;
+		get_dis(v, u, dist + eg[i].w, from);
+	}
+}
+
+bool cmp(int x, int y) {
+	return dis[x] < dis[y];
+} 
+
+void calc(int u) {
+	udx = 0;
+	son[++udx] = u;
+	frm[u] = u;
+	dis[u] = 0;
+	
+	for (int i = head[u]; ~i; i = eg[i].nxt) {
+		int v = eg[i].to;
+		if (vis[v]) continue;
+		get_dis(v, u, eg[i].w, v);
+	}
+	
+	sort(son + 1, son + udx + 1, cmp);
+	rep (i, 1, m) {
+		if (res[i]) continue;
+		int l = 1, r = udx;
+		while (l < r) {
+			int x = son[l], y = son[r], len = dis[x] + dis[y];
+			if (len < qus[i]) l++;
+			else if (len > qus[i]) r--;
+			else if (frm[x] == frm[y]) {
+				if (frm[son[r - 1]] == frm[y]) r--;
+				else l++;
+			}
+			else {
+				res[i] = 1;
+				break;
+			}
+		}
+	}
+}
+
+void solve(int u) {
+	vis[u] = 1;
+	calc(u);
+	
+	for (int i = head[u]; ~i; i = eg[i].nxt) {
+		int v = eg[i].to;
+		if (vis[v]) continue;
+		mn = INF;
+		get_root(v, 0, sz[v]);
+		solve(root);
+	}
+}
+
+void work() {
+	mn = INF;
+	memset(head, -1, sizeof head);
+	
+	cin >> n >> m;
+	rep (i, 2, n) {
+		int u, v, w;
+		cin >> u >> v >> w;
+		add_edge(u, v, w), add_edge(v, u, w);
+	}
+	
+	rep (i, 1, m) cin >> qus[i];
+	
+	get_root(1, 0, n);
+	solve(root);
+	
+	rep (i, 1, m) if (res[i]) {
+		cout << "AYE" << endl;
+	} else cout << "NAY" << endl;
+}
+
+/*
+树（有边权）上长度为k的简单路径是否存在
+
+*/
+
+signed main() {
+	IO
+
+	int test = 1;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

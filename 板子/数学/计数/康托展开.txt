@@ -1,0 +1,72 @@
+// 求 1\sim N1∼N 的一个给定全排列在所有 1\sim N1∼N 全排列中的排名。结果对 998244353 取模
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e6 + 10, MOD = 998244353;
+const double eps = 1e-7, pi = acos(-1);
+
+int n;
+int a[N], fact[N];
+int tr[N]; 
+
+inline int add(int x, int y) {
+	return (LL)x + y > MOD ? x + y - MOD : x + y;
+}
+
+void init() {
+	fact[0] = 1;
+	rep (i, 1, N - 1) fact[i] = 1ll * fact[i - 1] * i % MOD;
+}
+
+int lowbit(int x){
+    return x & -x;
+}
+
+void insert(int x, int c){
+    for(int i = x; i <= n; i += lowbit(i)) tr[i] += c;
+}
+
+int sum(int x){
+    int res = 0;
+    for(int i = x; i >= 1; i -= lowbit(i)) res += tr[i];
+    return res;
+}
+
+void work() {
+	cin >> n;
+	rep (i, 1, n) cin >> a[i];
+	
+	int res = 0;
+	rep (i, 1, n) {
+		int cnt = a[i] - 1 - sum(a[i]);
+		res = add(res, (LL)cnt * fact[n - i] % MOD);
+		insert(a[i], 1);
+	}
+	cout << add(res, 1) << endl;
+}
+
+signed main() {
+	IO
+	init();
+
+	int test = 1;
+//	cin >> test;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

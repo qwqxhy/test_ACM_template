@@ -1,0 +1,146 @@
+#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 2e5 + 10, MOD = 1e9 + 7;
+const double eps = 1e-7, pi = acos(-1);
+
+int n, idx;
+
+struct Line {
+	int l, r, c;
+} line[N];
+
+vector<int> clr[N];
+
+struct NODE {
+	int ls, rs;
+	LL sum, lazy;
+} tr[N * 45];
+
+void pushup(int u) {
+	int lson = tr[u].ls, rson = tr[u].rs;
+	tr[u].sum = tr[lson].sum + tr[rson].sum;
+}
+
+void pushdown(int u, LL l, LL r) {
+	if (r - l + 1 <= 1) return;
+	LL lz = tr[u].lazy;
+	if (!tr[u].ls) tr[u].ls = ++idx;
+	if (!tr[u].rs) tr[u].rs = ++idx;
+	
+	LL lson = tr[u].ls, rson = tr[u].rs, len = r - l + 1;
+	tr[u].lazy = 0;
+	tr[lson].sum += lz * (len / 2);
+	tr[rson].sum += lz * (len - len / 2);
+	tr[lson].lazy += lz, tr[rson].lazy += lz;
+}
+
+void update(int u, LL l, LL r, LL L, LL R, LL d) {
+	if (L <= l && r <= R) {
+		tr[u].lazy += d;
+		tr[u].sum += (r - l + 1) * d;
+		return;
+	}
+	
+	pushdown(u, l, r);
+	
+	LL mid = (l + r - 1) / 2; //动态开点线段树需要-1
+	if (mid >= L) update(tr[u].ls, l, mid, L, R, d);
+	if (mid < R) update(tr[u].rs, mid + 1, r, L, R, d); 
+	
+	pushup(u);
+}
+
+LL query(int u, LL l, LL r, LL L, LL R) {
+	if (L <= l && r <= R) return tr[u].sum;
+
+	pushdown(u, l, r);
+	
+	LL mid = (l + r - 1) / 2, res = 0;
+	if (mid >= L) res += query(tr[u].ls, l, mid, L, R);
+	if (mid < R) res += query(tr[u].rs, mid + 1, r, L, R);
+	
+	pushup(u);
+	
+	return res; 
+}
+
+void Update(LL l, LL r, LL d) {
+	update(1, 1, 1e9, l, r, d);
+}
+
+LL Query(LL l, LL r) {
+	return query(1, 1, 1e9, l, r);
+}
+
+void work() {
+	cin >> n;
+	
+	multiset<int> L, R;
+	vector<int> res(n + 1);
+	rep (i, 1, n) clr[i].clear();
+	memset(tr, 0, sizeof(tr[0]) * (idx + 2)), idx = 1;	
+	
+	rep (i, 1, n) {
+		cin >> line[i].l >> line[i].r >> line[i].c;
+		Update(line[i].l, line[i].r, 1);
+		clr[line[i].c].push_back(i);
+		L.insert(line[i].l), R.insert(line[i].r);
+	}
+	
+	rep (i, 1, n) {
+		rep (j, 0, clr[i].size() - 1) {
+			int u = clr[i][j]; 
+			Update(line[u].l, line[u].r, -1);
+			L.erase(L.find(line[u].l)), R.erase(R.find(line[u].r));
+		}
+		
+		rep (j, 0, clr[i].size() - 1) {
+			int u = clr[i][j];
+			LL sum = Query(line[u].l, line[u].r);
+			if (sum) res[u] = 0;
+			else {
+				res[u] = 1e9; 
+				multiset<int>::iterator it = lower_bound(L.begin(), L.end(), line[u].r);
+				if (it != L.end()) res[u] = min(res[u], *it - line[u].r);
+				it = upper_bound(R.begin(), R.end(), line[u].l);
+				if (it != R.begin()) it--, res[u] = min(res[u], line[u].l - *it);
+			}
+		}
+		
+		rep (j, 0, clr[i].size() - 1) {
+			int u = clr[i][j];
+			Update(line[u].l, line[u].r, 1);
+			L.insert(line[u].l), R.insert(line[u].r);
+		}
+	}
+	
+	rep (i, 1, n) cout << res[i] << " ";
+	cout << endl;
+}
+
+signed main() {
+	IO
+
+	int test = 1;
+	cin >> test;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

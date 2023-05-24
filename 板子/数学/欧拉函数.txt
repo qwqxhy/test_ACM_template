@@ -1,0 +1,13 @@
+LL phi(LL x) {  
+    LL res = x, tp = sqrt(x);  
+
+    for(LL i = 2; i <= tp; i++) {
+    	if(x % i == 0) {  
+            res = res - res / i;  
+            while (x % i == 0) x /= i;   
+        }  
+    } 
+    if(x > 1) res = res - res / x;  
+
+    return res;
+}  

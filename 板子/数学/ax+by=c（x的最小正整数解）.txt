@@ -1,0 +1,35 @@
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+#include <algorithm>
+#define LL long long
+using namespace std;
+
+void extend_gcd(LL a, LL b, LL& d, LL& x, LL& y)
+{
+    if(!b){ d = a; x = 1; y = 0; }
+    else { extend_gcd(b, a%b,d, y, x); y -= x*(a/b);}
+}
+
+int main()
+{
+    LL a, b, c, d;
+    LL x, y, x1, y1;
+
+    cin >> a >> b >> c;
+
+    extend_gcd(a, b, d, x, y);
+    if(c % d != 0)
+        printf("Impossible\n");
+    else
+    {
+        LL b1 = b / d;
+        x1 = (x + b1) * (c / d);
+        x1 = (x1 % b1 + b1) % b1;
+        y1 = (c - a*x1) / b;
+
+        printf("x = %lld, y = %lld\n", x1, y1);
+    }
+
+    return 0;
+}

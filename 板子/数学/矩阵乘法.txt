@@ -1,0 +1,71 @@
+#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 3;
+const double eps = 1e-7, pi = acos(-1);
+
+int n, MOD;
+
+void mul(int c[], int a[], int b[][N]) {
+    int tmp[N] = {0};
+    rep (i, 0, N - 1) 
+        rep (j, 0, N - 1) 
+            tmp[i] = (tmp[i] + 1ll * a[j] * b[j][i]) % MOD; 
+
+    memcpy(c, tmp, sizeof tmp);
+}
+
+void mul(int c[][N], int a[][N], int b[][N]) {
+    int tmp[N][N] = {0};
+    rep (i, 0, N - 1) 
+        rep (j, 0, N - 1) 
+            rep (k, 0, N - 1) 
+                tmp[i][j] = (tmp[i][j] + 1ll * a[i][k] * b[k][j]) % MOD;
+
+    memcpy(c, tmp, sizeof tmp);
+}
+
+void work() {
+    cin >> n >> MOD;
+
+    int f1[N] = {1, 1, 1};
+    int a[N][N] = {
+        {1, 0, 0},
+        {1, 1, 1},
+        {0, 1, 0},
+    };
+
+    n--;
+    while (n) {
+        if (n & 1) mul(f1, f1, a);
+        mul(a, a, a);
+        n >>= 1;
+    }
+
+    cout << f1[0] << endl;
+}
+
+signed main() {
+    IO
+
+    int test = 1;
+
+    while (test--) {
+        work();
+    }
+
+    return 0;
+}

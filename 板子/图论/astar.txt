@@ -1,0 +1,99 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (a); i <= (b); i ++)
+#define rrep(i, a, b) for(int i = (a); i >= (b); i --)
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<int, PII> PIII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e3 + 10, M = 2e4 + 10, MOD = 1e9 + 7;
+const double eps = 1e-7;
+
+int n, m;
+int S, T, K;
+int idx;
+int head[N], rh[N], dis[N];
+int st[N];
+int f[N];
+
+struct NODE {
+	int to, next, len;
+} eg[M];
+
+void add(int h[], int x, int y, int w) {
+	eg[++idx].to = y;
+	eg[idx].len = w;
+	eg[idx].next = h[x];
+	h[x] = idx;
+}
+
+void dij() {
+	memset(dis, 0x3f, sizeof dis);
+	priority_queue<PII, vector<PII>, greater<PII> > q;
+	dis[T] = 0;
+	q.push({0, T});
+	while (!q.empty()) {
+		PII cur = q.top();
+		q.pop();
+		if (st[cur.se]) continue;
+		st[cur.se] = 1;
+		for (int i = rh[cur.se]; ~i; i = eg[i].next) {
+			int to = eg[i].to;
+			if (dis[to] > dis[cur.se] + eg[i].len) {
+				dis[to] = dis[cur.se] + eg[i].len;
+				q.push({dis[to], to});
+			}
+		}
+	}
+	memcpy(f, dis, sizeof f);
+}
+
+int astar() {
+	if (dis[S] == INF) return -1;
+	memset(st, 0, sizeof st);
+	priority_queue<PIII, vector<PIII>, greater<PIII> > q;
+	q.push({f[S], {0, S}});
+	if (S == T) K++;
+	while (!q.empty()) {
+		PIII cur = q.top();
+		q.pop();
+		st[cur.se.se]++;
+		if (st[T] == K) return cur.se.fr;
+		for (int i = head[cur.se.se]; ~i; i = eg[i].next) {
+			int to = eg[i].to;
+			if (st[to] < K)
+				q.push({cur.se.fr + eg[i].len + f[to], {cur.se.fr + eg[i].len, to}});
+		}
+	}
+	return -1;
+}
+
+void work() {
+	memset(head, -1, sizeof head);
+	memset(rh, -1, sizeof rh);
+	cin >> n >> m;
+	rep(i, 1, m) {
+		int x, y, w;
+		cin >> x >> y >> w;
+		add(head, x, y, w);
+		add(rh, y, x, w);
+	}
+	cin >> S >> T >> K;
+	dij();
+	cout << astar() << endl;
+}
+
+signed main() {
+
+	work();
+
+	return 0;
+}
+

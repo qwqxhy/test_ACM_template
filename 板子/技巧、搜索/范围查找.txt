@@ -1,0 +1,6 @@
+// 判断元素是否在[l,r]范围内出现过（pos[p]存储元素p出现的位置）
+
+bool check(int p, int l, int r) {
+	if (pos[p].size() == 0)return 0;
+	return upper_bound(pos[p].begin(), pos[p].end(), r) - lower_bound(pos[p].begin(), pos[p].end(), l);
+}

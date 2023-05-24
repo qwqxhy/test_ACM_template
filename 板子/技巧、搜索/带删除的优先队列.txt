@@ -1,0 +1,11 @@
+struct heap
+{
+    priority_queue<int> Q,D;
+    void push(int x) {Q.push(x);}
+    void erase(int x) {D.push(x);}
+    int top()
+    {
+        while(!D.empty()&&Q.top()==D.top()) Q.pop(),D.pop();
+        return Q.empty()?0:Q.top();
+    }
+}H;

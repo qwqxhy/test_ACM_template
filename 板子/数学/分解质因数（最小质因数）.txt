@@ -1,0 +1,17 @@
+int Get_Prime(int x, int y) {
+	S.clear();
+	while (x > 1) {
+		S.insert(minp[x]);
+		int u = minp[x];
+		while (x % u == 0) x /= u;
+	}
+	
+	while (y > 1) {
+		S.insert(minp[y]);
+		int u = minp[y];
+		while (y % u == 0) y /= u;
+	}
+	if (mp.find(S) != mp.end()) return mp[S];
+	for (auto u : S) p[cnt++] = u; 
+	return 0;
+}

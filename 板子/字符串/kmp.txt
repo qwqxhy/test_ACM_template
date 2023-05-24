@@ -1,0 +1,38 @@
+{
+	m = s.length();  // s模式串
+	s = '*' + s;
+	
+	ne[0] = ne[1] = 0;
+	for (int i = 2, j = 0; i <= m; i++) {
+		while (j && s[j + 1] != s[i]) j = ne[j];
+		if (s[j + 1] == s[i]) j++;
+		ne[i] = j;
+	}
+}
+	
+
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 1e5+10;
+
+int kmp[N];
+
+int main(){
+    string s1,s2;
+    int len1,len2;
+    cin>>len1>>s1>>len2>>s2;
+    kmp[1]=kmp[0]=0;
+    int k=0;
+    for(int i=1;i<len1;i++){
+        while(k && s1[k]!=s1[i]) k=kmp[k];
+        kmp[i+1]=s1[i]==s1[k]?++k:0;
+    }
+    k=0;
+    for(int i=0;i<len2;i++){
+        while(k && s2[i]!=s1[k]) k=kmp[k];
+        k+=s2[i]==s1[k]?1:0;
+        if(k==len1) cout<<i-k+1<<" ";
+    }
+    return 0;
+}

@@ -1,0 +1,5 @@
+rep (i, 1, 5) a[i] = i;
+	do {
+		rep (i, 1, 5) cout << a[i] << " ";
+		cout << endl;
+	}while (next_permutation(a + 1, a + 1 + 5));

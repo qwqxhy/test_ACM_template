@@ -1,0 +1,62 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int __int128
+
+inline void read(register int &x){
+    x = 0; register int f = 1;
+    register char ch = getchar();
+    while (!(ch >= '0' && ch <= '9')){ if (ch == '-') f = -1; ch = getchar(); }
+    while (ch >= '0' && ch <= '9'){ x = x * 10 + ch - '0'; ch = getchar(); }
+    x *= f;
+}
+
+inline void print(__int128 x){
+    if(x < 0){
+        putchar('-');
+        x = -x;
+    }
+    if(x > 9)
+        print(x / 10);
+    putchar(x % 10 + '0');
+}
+
+int exgcd(int a,int b,int &x,int &y){
+    if(b==0){
+        x=1,y=0;
+        return a;
+    }
+    else{
+        int d=exgcd(b,a%b,y,x);
+        y-=a/b*x;
+        return d;
+    }
+}
+
+signed main(){
+    int n;
+    bool has_answer=true;
+    int a1,m1,a2,m2;
+    int k1,k2;
+//    cin>>n;
+    read(n); 
+    read(a1), read(m1); //模a余m 
+    for(int i=1;i<n;i++){
+        read(a2), read(m2);
+        int d=exgcd(a1,a2,k1,k2);
+        //cout<<d<<endl;
+        if((m2-m1)%d!=0){
+            has_answer=false;
+            break;
+        }
+        k1=((m2-m1)/d)*k1;
+        int r=a2/d;
+        k1=(k1%r+r)%r;
+        m1=a1*k1+m1;
+        a1=a1/d*a2;
+    }
+    m1=(m1%a1+a1)%a1;
+    if(!has_answer) cout<<-1;
+    else print(m1);
+    return 0;
+}

@@ -1,0 +1,57 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 60, MOD = 1e9 + 7;
+const double eps = 1e-7, pi = acos(-1);
+
+LL p[N];
+
+void insert(LL x) {
+	rrep (i, 49, 0) {
+		if (x >> i & 1) {
+			if (!p[i]) {
+				p[i] = x;
+				return;
+			}
+			x ^= p[i];
+		}
+	}
+}
+
+void work() {
+	int n;
+	
+	cin >> n;
+	rep (i, 1, n) {
+		LL x;
+		cin >> x, insert(x);
+	}
+	
+	LL res = 0;
+	rrep (i, 49, 0) if ((res ^ p[i]) > res) res = res ^ p[i];
+	cout << res << endl;
+}
+
+signed main() {
+	IO
+
+	int test = 1;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

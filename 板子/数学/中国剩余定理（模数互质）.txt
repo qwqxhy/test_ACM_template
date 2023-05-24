@@ -1,0 +1,60 @@
+#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e6 + 10, MOD = 1e9 + 7;
+const double eps = 1e-7, pi = acos(-1);
+
+LL a[N], b[N], M = 1;
+
+LL exgcd(LL a, LL b, LL &x, LL &y) {
+    if (!b) {
+        x = 1, y = 0;
+        return a;
+    }
+    LL d = exgcd(b, a % b, y, x);
+    y -= a / b * x;
+    return d;
+}
+
+void work() {
+	int n; 
+	cin >> n;
+	rep (i, 1, n) {
+		cin >> a[i] >> b[i]; //a模数，b余数，求res%a=b / a|(res-b)
+		M *= a[i];
+	}
+	
+	LL res = 0; 
+	rep (i, 1, n) {
+		LL x, y, m = M / a[i];
+		exgcd(a[i], m, x, y);
+		res += m * y * b[i];
+	}
+	
+	cout << (res % M + M) % M << endl;
+}
+
+signed main() {
+	IO
+
+	int test = 1;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

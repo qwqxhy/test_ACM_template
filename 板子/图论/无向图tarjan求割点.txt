@@ -1,0 +1,18 @@
+int dfn[N], low[N], cut[N], timestamp;
+
+void tarjan(int u, int root) {
+	int sons = 0;
+	dfn[u] = low[u] = ++ timestamp; //时间戳
+	for (int i = head[u]; ~i; i = eg[i].next) {
+		int j = eg[i].to;
+		if (!dfn[j]) {
+			tarjan(j, root);
+			low[u] = min(low[u], low[j]);
+			if (dfn[u] <= low[j] && u != root) cut[u] = 1;
+			if (u == root) sons++; // 如果是根，统计子树大小
+		} else low[u] = min(low[u], dfn[j]); // 更新low[u]
+	}
+	if (sons >= 2 && u == root)	cut[u] = 1; // 如果是根且子树个数大于等于2则也是割点
+}
+
+

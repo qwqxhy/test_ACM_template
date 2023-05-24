@@ -1,0 +1,100 @@
+#include<bits/stdc++.h>
+#define N 2000005
+#define re register int
+#define in read()
+using namespace std;
+
+int n, m;
+int w[N];
+int poww[N], fa[N][30];
+int ans = -1;
+int tot = 0, fi[N], nxt[2 * N], to[2 * N];
+int lg[N], dep[N];
+
+inline int in{
+	int i = 0;
+	char ch;
+	while (!isdigit(ch)) {
+		ch = getchar();
+	}
+	while (isdigit(ch)) {
+		i = (i << 3) + (i << 1) + (ch - '0');
+		ch = getchar();
+	}
+	return i;
+}
+
+inline void lian(int u, int v) {
+	nxt[++tot] = fi[u];
+	to[tot] = v;
+	fi[u] = tot;
+}
+
+inline void Init(int u, int f) {
+	fa[u][0] = f;
+	dep[u] = dep[f] + 1;
+	for (int i = 1; i <= lg[dep[u]]; i++)
+		fa[u][i] = fa[fa[u][i - 1]][i - 1];
+	for (int i = fi[u]; i; i = nxt[i]) {
+		int v = to[i];
+		if (v == f)continue;
+		Init(v, u);
+	}
+	return;
+}
+
+inline int findLCA(int x, int depth) {
+	while (dep[x] > depth)
+		x = fa[x][lg[dep[x] - depth] - 1];
+	return x;
+}
+
+inline void get_ans(int u, int f) {
+	for (int i = fi[u]; i; i = nxt[i]) {
+		int v = to[i];
+		if (v == f)continue;
+		get_ans(v, u);
+		poww[u] += poww[v];
+	}
+	ans = max(ans, poww[u]);
+}
+
+int main() {
+	int x, y, s, t;
+	n = in;
+	for (int i = 1; i <= n; i++)
+		lg[i] = lg[i - 1] + (1 << lg[i - 1] == i);
+	for (int i = 1; i < n; i++) {
+		x = in, y = in;
+		lian(x, y);
+		lian(y, x);
+	}
+	Init(1, 0);
+	for (int i = 1; i <= n; i++) w[i] = in;
+	for (int i = 1; i <= n; i++) {
+		s = i;
+		int ant = findLCA(s, max(0, dep[s] - w[s]));
+		poww[s]++, poww[ant]++;
+		poww[ant]--, poww[fa[ant][0]]--;
+	}
+	get_ans(1, 0);
+	for (int i = 1; i <= n; i++) printf("%d ", poww[i]);
+	return 0;
+}
+
+输入
+
+10
+1 2
+2 3
+2 4
+3 5
+4 6
+4 7
+1 8
+8 9
+8 10
+0 0 1 2 2 5 3 1 0 2
+输出
+
+6 6 2 3 1 1 1 2 1 1

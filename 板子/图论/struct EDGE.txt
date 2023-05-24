@@ -1,0 +1,12 @@
+int idx, head[N];
+
+struct Edge {
+	int to, nxt, w;
+} eg[N << 1];
+
+void add_edge(int u, int v, int w) {
+	eg[idx].to = v;
+	eg[idx].w = w;
+	eg[idx].nxt = head[u];
+	head[u] = idx++;
+}

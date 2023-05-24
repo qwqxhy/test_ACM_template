@@ -1,0 +1,52 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+
+typedef pair<int, int> PII;
+typedef long long LL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 2e4 + 10, MOD = 1e9 + 10;
+
+int cnt, v[N], w[N];
+int f[N], pre[N];
+int q[N];
+
+void work() {
+	int n, m;
+	cin >> n >> m;
+
+	for (int i = 1; i <= n; i++) {
+		int v, w, s;
+		cin >> v >> w >> s;
+
+		memcpy(pre, f, sizeof f);
+
+		for (int j = 0; j < v; j++) {
+			int hh = 0, tt = -1;
+			for (int k = j; k <= m; k += v) {
+				while (hh <= tt && (k - q[hh]) / v > s) hh++; // 维护滑动窗口的范围
+
+				while (hh <= tt && pre[q[tt]] - (q[tt] - j) / v * w < pre[k] - (k - j) / v * w) tt--;
+				// 当前值比队尾元素大，则舍弃队尾元素
+
+				q[++tt] = k; // 更新队尾元素
+
+				f[k] = max(f[k], pre[q[hh]] + (k - q[hh]) / v * w); // 用队首元素更新最大值
+
+			}
+		}
+	}
+
+	cout << f[m];
+
+}
+
+signed main() {
+
+	work();
+
+	return 0;
+}

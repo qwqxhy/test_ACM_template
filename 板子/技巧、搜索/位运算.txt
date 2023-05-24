@@ -1,0 +1,32 @@
+https://www.cnblogs.com/tldr/p/11288935.html
+
+int __builtin_ffs (unsigned int x)
+返回x的最后一位1的是从后向前第几位，比如7368（1110011001000）返回4。
+
+int n = 1;//1
+int m = 8;//1000
+cout<<__builtin_ffs(n)<<endl;//输出1
+cout<<__builtin_ffs(m)<<endl;//输出4
+int __builtin_clz (unsigned int x)
+返回前导的0的个数。
+
+int __builtin_ctz (unsigned int x)
+返回后面的0个个数，和__builtin_clz相对。
+
+int n = 1;//1
+int m = 8;//1000
+cout<<__builtin_ctzll(n)<<endl;//输出0
+cout<<__builtin_ctz(m)<<endl;//输出3
+int __builtin_popcount (unsigned int x)
+返回二进制表示中1的个数。
+
+int n = 15; //二进制为1111
+cout<<__builtin_popcount(n)<<endl;//输出4
+int __builtin_parity (unsigned int x)
+返回x的奇偶校验位，也就是x的1的个数模2的结果。
+
+int n = 15;//二进制为1111
+int m = 7;//111
+cout<<__builtin_parity(n)<<endl;//偶数个，输出0
+cout<<__builtin_parity(m)<<endl;//奇数个，输出1
+此外，这些函数都有相应的usigned long和usigned long long版本，只需要在函数名后面加上l或ll就可以了，比如int __builtin_clzll。

@@ -1,0 +1,100 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e6 + 10, MOD = 1e9 + 7;
+const double eps = 1e-7, pi = acos(-1);
+
+int n, m;
+
+int head[N << 1], idx;
+
+struct EGDE {
+	int to, next;
+} eg[N << 2];
+
+void add(int x, int y) {
+	eg[idx].to = y;
+	eg[idx].next = head[x];
+	head[x] = idx++;
+}
+
+int dfn[N << 1], low[N << 1], timestamp;
+int stk[N << 1], top;
+bool in_stk[N << 1];
+int id[N << 1], scc_cnt, Size[N << 1];
+
+void tarjan(int u) {
+	dfn[u] = low[u] = ++timestamp;
+	stk[ ++top] = u, in_stk[u] = true;
+	for (int i = head[u]; ~i; i = eg[i].next) {
+		int j = eg[i].to;
+		if (!dfn[j]) {
+			tarjan(j);
+			low[u] = min(low[u], low[j]);
+		} else if (in_stk[j]) low[u] = min(low[u], dfn[j]);
+	}
+
+	if (dfn[u] == low[u]) {
+		++scc_cnt;
+		int y;
+		do {
+			y = stk[top -- ];
+			in_stk[y] = false;
+			id[y] = scc_cnt;
+			Size[scc_cnt] ++ ;
+		} while (y != u);
+	}
+}
+
+void work() {
+	memset(head, -1, sizeof head);
+	cin >> n >> m;
+	rep (i, 1, m) {
+		int u, v, a, b;
+		cin >> u >> a >> v >> b;
+		if (a == 1 && b == 1) add(u + n, v), add(v + n, u);
+		else if (a == 1 && b == 0) add(u + n, v + n), add(v, u);
+		else if (a == 0 && b == 1) add(u, v), add(v + n, u + n);
+		else add(u, v + n), add(v, u + n); 
+	}
+	
+	rep (i, 1, n << 1) if (!dfn[i]) tarjan(i);
+	
+	int ok = 1;
+	rep (i, 1, n) if (id[i] == id[i + n]) ok = 0;
+	
+	if (!ok) cout << "IMPOSSIBLE" << endl; 
+	else {
+		cout << "POSSIBLE" << endl;
+		rep (i, 1, n) {
+			if (id[i] < id[i + n]) cout << 1 << " ";
+			else cout << 0 << " ";
+		}
+		cout << endl;
+	}
+	
+}
+
+signed main() {
+	IO
+
+	int test = 1;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

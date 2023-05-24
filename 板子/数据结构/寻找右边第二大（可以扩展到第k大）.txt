@@ -1,0 +1,27 @@
+class Solution {
+public:
+    vector<int> secondGreaterElement(vector<int>& nums) {
+        int size = nums.size();
+        vector<int> ans(size, -1);
+        if (size == 1) return ans;
+        vector<int> arr(size);
+        iota(arr.begin(), arr.end(), 0);
+        sort(arr.begin(), arr.end(), [&](const int i, const int j) {
+            return (nums[i] < nums[j]) || (nums[i] == nums[j] && i > j);
+        });
+        set<int> st;
+        st.insert(arr[size - 1]);
+        st.insert(arr[size - 2]);
+        for (int i = size - 3; i >= 0; i--) {
+            auto it = st.lower_bound(arr[i]);
+            if (it != st.end()) {
+                it++;
+                if (it != st.end()) {
+                    ans[arr[i]] = nums[*it];
+                }
+            }
+            st.insert(arr[i]);
+        }
+        return ans;
+    }
+};

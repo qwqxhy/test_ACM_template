@@ -1,0 +1,90 @@
+#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e6 + 10, MOD = 1e9 + 7;
+const double eps = 1e-7, pi = acos(-1);
+
+int n;
+string s, str;
+
+struct Trie {
+	int son[26];
+	int end;
+	int fail;
+} tr[N];
+
+int idx;
+
+void insert(string &a) {
+	int u = 0;
+	rep (i, 0, a.length() - 1) {
+		int v = a[i] - 'a';
+		if (tr[u].son[v]) u = tr[u].son[v];
+		else tr[u].son[v] = ++idx, u = idx;
+	}
+	tr[u].end++;
+}
+
+void build() {
+	queue<int> Q;
+	rep (i, 0, 25) if (tr[0].son[i]) Q.push(tr[0].son[i]);
+
+	while (!Q.empty()) {
+		int u = Q.front();
+		Q.pop();
+		rep (i, 0, 25) {
+			int v = tr[u].son[i];
+			if (!v) tr[u].son[i] = tr[tr[u].fail].son[i];
+			else tr[v].fail = tr[tr[u].fail].son[i], Q.push(v);
+		}
+	}
+}
+
+void work() {
+	cin >> n;
+	rep (i, 1, n) {
+		cin >> s;
+		insert(s);
+	}
+
+	build();
+
+	cin >> str;
+
+	int u = 0, ans = 0;
+	rep (i, 0, str.length() - 1) {
+		u = tr[u].son[str[i] - 'a'];
+		for (int t = u; t && tr[t].end != -1; t = tr[t].fail) {
+			ans += tr[t].end;
+			tr[t].end = -1;
+		}
+	}
+	
+	cout << ans << endl;
+}
+
+signed main() {
+	IO
+
+	int test = 1;
+	//	cin >> test;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

@@ -1,0 +1,91 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int long long
+
+const int N = 1e5 + 10;
+
+struct Segment {
+	int x, y1, y2;
+	int d;
+	bool operator < (const Segment &t) const {
+		return x < t.x;
+	}
+} seg[N * 2];
+
+struct NODE {
+	int l, r;
+	int cnt;
+	int len;
+} tr[N * 8];
+
+int n;
+
+vector<int> ys;
+
+int find(int y) {
+	return lower_bound(ys.begin(), ys.end(), y) - ys.begin();
+}
+
+void pushup(int u) {
+	if (tr[u].cnt) tr[u].len = ys[tr[u].r + 1] - ys[tr[u].l];
+	else if (tr[u].l != tr[u].r) tr[u].len = tr[u << 1].len + tr[u << 1 | 1].len;
+	else tr[u].len = 0;
+}
+
+void build(int u, int l, int r) {
+	if (l == r) tr[u] = {l, r, 0, 0};
+	else {
+		tr[u] = {l, r, 0, 0};
+		int mid = l + r >> 1;
+		build(u << 1, l, mid);
+		build(u << 1 | 1, mid + 1, r);
+	}
+}
+
+void modify(int u, int l, int r, int d) {
+	if (l <= tr[u].l && r >= tr[u].r) {
+		tr[u].cnt += d;
+		pushup(u);
+	} else {
+		int mid = tr[u].l + tr[u].r >> 1;
+		if (l <= mid) modify(u << 1, l, r, d);
+		if (r > mid) modify(u << 1 | 1, l, r, d);
+		pushup(u);
+	}
+}
+
+signed main() {
+	int k = 1;
+	while (k && cin >> n) {
+		ys.clear();
+		int j = 0;
+		for (int i = 0; i < n; i++) {
+			int x1, x2, y1, y2;
+			cin >> x1 >> y1 >> x2 >> y2;
+			seg[j++] = {x1, y1, y2, 1};
+			seg[j++] = {x2, y1, y2, -1};
+			ys.push_back(y1);
+			ys.push_back(y2);
+		}
+		sort(seg, seg + j);
+
+		sort(ys.begin(), ys.end());
+		ys.erase(unique(ys.begin(), ys.end()), ys.end());
+
+		build(1, 0, ys.size() - 2);
+
+		int res = 0;
+
+		for (int i = 0; i < 2 * n; i++) {
+			if (i) res += (seg[i].x - seg[i - 1].x) * tr[1].len;
+			modify(1, find(seg[i].y1), find(seg[i].y2) - 1, seg[i].d);
+		}
+
+		printf("%lld \n", res);
+		
+		k--;
+		
+	}
+	return 0;
+}

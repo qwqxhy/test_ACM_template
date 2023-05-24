@@ -1,0 +1,48 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+
+typedef pair<int, int> PII;
+typedef long long LL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 1e5 + 10, MOD = 1e9 + 10;
+
+int cnt, v[N], w[N];
+int f[N];
+
+void work() {
+	int n, m;
+	cin >> n >> m;
+
+	for (int i = 1; i <= n; i++) {
+		int a, b, c;
+		cin >> a >> b >> c;
+		int base = 1;
+		while (c - base >= 0) {
+			c -= base;
+			v[++cnt] = base * a;
+			w[cnt] = base * b;
+			base <<= 1;
+		}
+		if (c) {
+			v[++cnt] = c * a;
+			w[cnt] = c * b;
+		}
+	}
+
+	for (int i = 1; i <= cnt; i++)
+		for (int j = m; j >= v[i]; j--)
+			f[j] = max(f[j], f[j - v[i]] + w[i]);
+
+	cout << f[m] << endl;
+}
+
+signed main() {
+
+	work();
+
+	return 0;
+}

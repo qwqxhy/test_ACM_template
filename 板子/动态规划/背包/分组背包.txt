@@ -1,0 +1,57 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+
+typedef pair<int, int> PII;
+typedef long long LL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 20 + 10, MOD = 1e9 + 10;
+
+int w[N];
+int f[N];
+int path[N][N];
+
+void print(int n, int m) {
+	if (n == 0) return;
+
+	int cur = path[n][m];
+
+	print(n - 1, m - path[n][m]);
+
+	cout << n << " " << cur << endl;
+}
+
+void work() {
+	int n, m;
+	cin >> n >> m;
+
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= m; j++) cin >> w[j];
+
+		for (int j = m; j >= 0; j--)
+			for (int k = 0; k <= j; k++) {
+				int cur = f[j - k] + w[k];
+				if (cur > f[j]) {
+					f[j] = cur;
+					path[i][j] = k;
+				}
+			}
+
+
+	}
+
+	cout << f[m] << endl;
+
+	print(n, m);
+
+}
+
+signed main() {
+
+	work();
+
+	return 0;
+}

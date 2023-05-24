@@ -1,0 +1,2 @@
+rrep (j, 28, 0)
+		if (Fa[u][j] && h[Fa[u][j]] <= x) u = Fa[u][j];

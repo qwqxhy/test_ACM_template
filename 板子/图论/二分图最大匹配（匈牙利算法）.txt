@@ -1,0 +1,52 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 100010;
+
+int m,cp[N];
+int head[N],vis[N],cnt=0;
+
+struct BIAN{
+    int u;
+    int next;
+}bian[N];
+
+void add(int x,int y){
+    bian[++cnt].u=y;
+    bian[cnt].next=head[x];
+    head[x]=cnt;
+}
+
+bool find(int s){
+    if(s==0) return 1;
+    int y;
+    for(int i=head[s];i!=-1;i=bian[i].next){
+        y=bian[i].u;
+        if(!vis[y]){
+            vis[y]=1;
+            if(find(cp[y])){
+                cp[y]=s;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+int main(){
+    int x,y,ans=0;
+    int n1,n2;
+    memset(head,-1,sizeof head);
+    memset(cp,0,sizeof cp);
+    cin>>n1>>n2>>m;
+    for(int i=0;i<m;i++){
+        scanf("%d%d",&x,&y);
+        add(x,y);
+    }
+    for(int i=1;i<=n1;i++){
+        memset(vis,0,sizeof vis);
+        if(find(i)) ans++;
+    }
+    cout<<ans;
+    return 0;
+}

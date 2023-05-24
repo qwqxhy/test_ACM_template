@@ -1,0 +1,4 @@
+int lucas(LL x,LL y,int p) {
+    if (x < p && y < p) return C(x, y);//lucas递归终点是C_{bk}^{ak}
+    return (LL)C(x % p, y % p) * lucas(x / p, y / p, p) % p;//a%p后肯定是<p的,所以可以用C(),但a/p后不一定<p 所以用lucas继续递归
+}

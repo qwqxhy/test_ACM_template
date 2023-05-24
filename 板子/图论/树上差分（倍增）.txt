@@ -1,0 +1,117 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+#define rep(i, a, b) for(int i = (int)(a); i <= (int)(b); i ++)
+#define rrep(i, a, b) for(int i = (int)(a); i >= (int)(b); i --)
+#define IO ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 2e6 + 10, MOD = 1e9 + 7;
+const double eps = 1e-7, pi = acos(-1);
+
+int n, m; // n个点m条边
+int poww[N], fa[N][30];
+int lg[N], dep[N];
+int ans;
+
+int head[N], idx;
+
+struct EGDE {
+	int to, next;
+} eg[N << 1];
+
+void add(int x, int y) {
+	eg[idx].to = y;
+	eg[idx].next = head[x];
+	head[x] = idx++;
+}
+
+void Init_lg() { // lg预处理，用于估计跳跃幅度,不加也可
+	for (int i = 1; i <= N; i++) lg[i] = lg[i - 1] + (1 << lg[i - 1] == i);
+}
+
+void Init_lca(int u, int f) { // LCA预处理
+	fa[u][0] = f;
+	dep[u] = dep[f] + 1;
+	for (int i = 1; i <= lg[dep[u]]; i++) fa[u][i] = fa[fa[u][i - 1]][i - 1];
+
+	for (int i = head[u]; ~i; i = eg[i].next) {
+		int to = eg[i].to;
+		if (to == f)continue;
+		Init_lca(to, u);
+	}
+}
+
+int find_lca(int x, int y) { //倍增求LCA
+	if (dep[x] < dep[y]) swap(x, y);
+	while (dep[x] > dep[y]) x = fa[x][lg[dep[x] - dep[y]] - 1];
+	if (x == y) return x;
+
+	for (int i = lg[dep[x]] - 1; i >= 0; i--) {
+		if (fa[x][i] != fa[y][i]) {
+			x = fa[x][i];
+			y = fa[y][i];
+		}
+	}
+
+	return fa[x][0];
+}
+
+void get_ans(int u, int f) {
+	for (int i = head[u]; ~i; i = eg[i].next) {
+		int to = eg[i].to;
+		if (to == f) continue;
+		get_ans(to, u);
+		poww[u] += poww[to];
+	}
+}
+
+void work() {
+	memset(head, -1, sizeof head);
+	memset(poww, 0, sizeof poww);
+	ans = 0;
+	
+	cin >> n >> m;
+	rep (i, 2, n) {
+		int x, y;
+		cin >> x >> y;
+		add(x, y);
+		add(y, x);
+	}
+
+	Init_lca(1, 0);
+
+	rep (i, 1, m) {
+		int x, y;
+		cin >> x >> y;
+		int ant = find_lca(x, y);
+		poww[x]++, poww[y]++;
+		poww[ant]--, poww[fa[ant][0]]--;
+	}
+
+	get_ans(1, 0);
+	
+	rep (i, 1, n) ans = max(ans, poww[i]);
+	cout << ans << endl;
+}
+
+signed main() {
+	IO
+	Init_lg();
+	
+	int test = 1;
+//	cin >> test;
+
+	while (test--) {
+		work();
+	}
+
+	return 0;
+}

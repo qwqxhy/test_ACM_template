@@ -1,0 +1,55 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define fr first
+#define se second
+#define et0 exit(0);
+
+typedef long long LL;
+typedef pair<int, int> PII;
+typedef pair<LL, LL> PLL;
+typedef unsigned long long ULL;
+
+const int INF = 0X3f3f3f3f, N = 2e6 + 10, MOD = 1e9 + 7;
+
+void work() {
+	int n,k=0;
+	scanf("%d",&n);
+	priority_queue<int> p;
+	priority_queue<int,vector<int>,greater<int> > q;
+	cout<<(n+1 >> 1)<<endl;
+	for(int i=1;i<=n;i++){
+	    int x;
+	    scanf("%d",&x);
+	    if(p.size()==0 || x<=p.top()) p.push(x);
+	    else q.push(x);
+	    if(q.size()+1 < p.size()){
+	        q.push(p.top());
+	        p.pop();
+	    }
+	    if(p.size()<q.size()){
+	        p.push(q.top());
+	        q.pop();
+	    }
+	    if(k==10){
+	        cout<<endl;
+	        k=0;
+	    }
+	    if(i&1) cout<<p.top()<<" ",k++;
+	}
+}
+
+signed main() {
+	int test;
+	scanf("%d",&test);
+	
+	int k;
+	while (test--) {
+		scanf("%d",&k);
+		cout<<k<<" ";
+		work();
+		if(test!=0) cout<<endl;
+	}
+	
+	return 0;
+}
